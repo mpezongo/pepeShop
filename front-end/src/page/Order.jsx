@@ -390,7 +390,7 @@ export default function Order() {
 
                             orderArticles.items.map((item, index) => (
                               <div key={index} className='w-full text-sm flex justify-between items-center'>
-                                {item.quantity} x {articlesData && articlesData.filter(article => article.id === 9)[0].name}
+                                {item.quantity} x {articlesData && articlesData[0].name}
                               </div>
                             ))
                             : 
