@@ -187,7 +187,10 @@ export default function Inventory() {
           alert('Article supprimé avec succès')
           window.location.reload()
         } catch (error) {
-          console.error('Erreur suppression article:', error.message)
+            if (error.code === '23503') {
+            alert('Impossible de supprimer cet article car il est référencé dans d\'autres tables.')
+            } else {
+                console.error(error)}
           return false
         }
     }
@@ -226,7 +229,7 @@ export default function Inventory() {
 
             const { error } = await supabase
                 .from('articles')
-                .update({ name, quantity, price, category, img: urlData.publicUrl })
+                .update({ name, quantity, price, category, img: urlData.publicUrl, stock: quantity })
                 .eq('id', editItem.id)
             if (error) throw error
             alert('Article modifié avec succès')
@@ -251,7 +254,7 @@ export default function Inventory() {
                 {
                     data &&
                     data.map((item, index) => (
-                        <div key={index} className='w-full h-24 bg-white rounded-lg shadow-sm shadow-black-20 border flex justify-between items-center p-2'>
+                        <div key={index} className='w-full h-28 bg-white rounded-lg shadow-sm shadow-black-20 border flex justify-between items-center p-2'>
                             <div className='flex flex-col justify-start items-start w-1/4 h-full'>
                                 <img src={item.img} alt="" className='h-full object-contain rounded-lg' />
                             </div>
@@ -262,7 +265,8 @@ export default function Inventory() {
                             </div>
                             <div className='flex flex-col justify-center items-end 1/4 h-full gap-2'>
                                 <span className='font-Montserrat text-sm font-bold text-green-500'>{item.price} Fcfa</span>
-                                <span className='font-Montserrat text-xs '>Qte:{item.quantity}</span>
+                                <span className='font-Montserrat text-xs '>Qte Achete:{item.quantity}</span>
+                                <span className='font-Montserrat text-xs '>Stock:{item.quantity - item.buyNbr}</span>
                                 <div className='flex gap-4'>
                                     <icons.BiSolidEdit className='text-blue-500 text-2xl cursor-pointer' onClick={() => handleEditItemClick(item)}/>
                                     <icons.FaRegTrashAlt className='text-red-500 text-xl cursor-pointer' onClick={() => deleteArticle(item)}/>

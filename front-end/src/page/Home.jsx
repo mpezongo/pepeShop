@@ -75,7 +75,8 @@ export default function Home() {
     }
 
     const totalArticles = articles.reduce((acc, article) => acc + article.quantity, 0)
-    const totalInventoryValue = articles.reduce((acc, article) => acc + (article.price * article.quantity), 0)
+    const totalBuyNbr = articles.reduce((acc, article) => acc + article.buyNbr, 0)
+    const totalInventoryValue = articles.reduce((acc, article) => acc + (article.price * (article.type === "ballot" ? 1 : article.quantity)), 0)
     const totalDepenses = depenses.reduce((acc, depense) => acc + depense.montant, 0)
     const totalVentes = ventes.reduce((acc, vente) => acc + vente.priceUnit * vente.quantity, 0)
 
@@ -92,7 +93,8 @@ export default function Home() {
                     </div>
                     <span className='text-sm'>Valeur de stock</span>
                     <span className='font-extrabold text-xl'>{formatNumber(totalInventoryValue)} Fcfa</span>
-                    <span className='text-sm'>{totalArticles.toLocaleString()} articles</span>
+                    <span className='text-sm'>Articles Achete: {totalArticles.toLocaleString()}</span>
+                    <span className='text-sm'>Stock: {(totalArticles - totalBuyNbr).toLocaleString()}</span>
                 </NavLink>
                 <NavLink to='/order' className='w-full h-auto py-4 px-4 bg-white shadow-sm shadow-black-20 border rounded-lg gap-2 flex flex-col justify-center items-center font-Montserrat text-center'>
                     <div className='w-12 h-12 bg-gray-300 rounded-full flex justify-center items-center'>

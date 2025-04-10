@@ -89,7 +89,6 @@ export default function Order() {
   const [switchAddOrder, setSwitchAddOrder] = useState(false)
   const [orderArticles, setOrderArticles] = useState({ items: [] })
   const [articlesData, setArticlesData] = useState()
-  const [ballotData, setBallotData] = useState()
   const [addOrderArticle, setAddOrderArticle] = useState()
 
   // const handleEditOrderClick = (item) => {
@@ -162,19 +161,6 @@ export default function Order() {
           }
           fetchData()
   }, [])
-  useEffect(() => {
-          const fetchData = async () => {
-              const { data, error } = await supabase
-                  .from('ballot')
-                  .select('*')
-              if (error) {
-                  console.log(error)
-              } else {
-                setBallotData(data)
-              }
-          }
-          fetchData()
-  }, [])
 
   useEffect(() => {
         const fetchData = async () => {
@@ -192,7 +178,6 @@ export default function Order() {
             if (error) {
                 console.log(error)
             } else {
-              console.log(data)
                 setData(data)
             }
         }
@@ -224,34 +209,39 @@ export default function Order() {
           ]).select()
         if (error) {throw error}
           clientId = addUserData[0].id
-        }else{
-          clientId = addOrder.client
-          if (!clientId){
-            alert("Veuillez selectionner un client")
-            return
-          }
+      }else{
+        clientId = addOrder.client
+        if (!clientId){
+          alert("Veuillez selectionner un client")
+          return
         }
+      }
 
-        for(let i = 0; i < orderArticles.items.length; i++){
-          if (!orderArticles.items[i].id || !orderArticles.items[i].quantity || !orderArticles.items[i].priceUnit){
-            alert("Veuillez remplir tous les champs")
-            return
-          }
-          const { error:orderError } = await supabase
-            .from('commandes')
-            .insert([
-              {
-                client: clientId,
-                status: addOrder.status,
-                article: orderArticles.items[i].id,
-                quantity: orderArticles.items[i].quantity,
-                priceUnit: orderArticles.items[i].priceUnit,
-              }
-            ]).select()
-          if (orderError) {throw orderError}
-          alert("Commande crée avec succès")
-          window.location.reload()
+      for(let i = 0; i < orderArticles.items.length; i++){
+        if (!orderArticles.items[i].id || !orderArticles.items[i].quantity || !orderArticles.items[i].priceUnit){
+          alert("Veuillez remplir tous les champs")
+          return
         }
+        const { error:orderError } = await supabase
+          .from('commandes')
+          .insert([
+            {
+              client: clientId,
+              status: addOrder.status,
+              article: orderArticles.items[i].id,
+              quantity: orderArticles.items[i].quantity,
+              priceUnit: orderArticles.items[i].priceUnit,
+            }
+          ]).select()
+        if (orderError) {throw orderError}
+        const { error: articleError } = await supabase
+          .from('articles')
+          .update({ buyNbr: articlesData.find((article) => article.id === parseInt(orderArticles.items[i].id)).buyNbr + parseInt(orderArticles.items[i].quantity) })
+          .eq('id', orderArticles.items[i].id)
+        if (articleError) {throw articleError}
+        alert("Commande crée avec succès")
+        window.location.reload()
+      }
       }catch(error){
       console.log(error)
     }
@@ -259,15 +249,23 @@ export default function Order() {
 
   const handleDeleteOrder = async (item) => {
     console.log(item)
-    const { error } = await supabase
-      .from('commandes')
-      .delete()
-      .eq('id', item.id)
-    if (error) {
-      console.log(error)
-    } else {
+    try{
+      const { error } = await supabase
+        .from('commandes')
+        .delete()
+        .eq('id', item.id)
+      if (error) {
+        throw error
+      }
+      const { error: articleError } = await supabase
+        .from('articles')
+        .update({ buyNbr: articlesData.find((article) => article.id === parseInt(item.articles.id)).buyNbr - item.quantity })
+        .eq('id', item.articles.id)
+      if (articleError) {throw articleError}
       alert("Commande supprimée avec succès")
       window.location.reload()
+    }catch(error){
+      console.log(error)
     }
   }
 
@@ -387,11 +385,6 @@ export default function Order() {
                             <option value="">Selectionner un article</option>
                             {
                               articlesData && articlesData.map((item, index) => (
-                                <option key={index} value={item.id}>{item.name}</option>
-                              ))
-                            }
-                            {
-                              ballotData && ballotData.map((item, index) => (
                                 <option key={index} value={item.id}>{item.name}</option>
                               ))
                             }
