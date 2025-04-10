@@ -119,11 +119,26 @@ export default function Inventory() {
             alert('Veuillez remplir tous les champs')
             return
         }
+        if (!image) {
+            alert('Veuillez ajouter une image')
+            return
+        }
+        const fileName = `${Date.now()}`
         try{
+            const { data: uploadImgData, error:uploadImgError } = await supabase.storage
+                .from('images')
+                .upload(fileName, image)
+
+            if (uploadImgError) throw uploadImgError
+
+            console.log(uploadImgData)
+            const { data: urlData } = supabase.storage
+                .from('images')
+                .getPublicUrl(uploadImgData.path)
             const { error } = await supabase
                 .from('articles')
                 .insert([
-                    { name, quantity, price, category, type: "ballot" }
+                    { name, quantity, price, category, img:urlData.publicUrl, type: "ballot" }
                 ])
             if (error) {
                 console.log(error)
@@ -135,6 +150,7 @@ export default function Inventory() {
                     price: '',
                     category: ''
                 })
+                setImage(null)
                 alert('Ballot ajouté avec succès')
                 window.location.reload()
             }
@@ -373,6 +389,20 @@ export default function Inventory() {
                             <option value="autres">Autres</option>
                         </select>
                     </label>
+                    <div className='w-full flex flex-col justify-start items-start gap-2 mt-4'>
+                        <label htmlFor="">
+                            <input type="file" multiple accept="image/*" onChange={handleFileChange} />
+                        </label>
+                        <div style={{ marginTop: "10px" }}>
+                            {image &&
+                                <img
+                                    src={URL.createObjectURL(image)}
+                                    alt="preview"
+                                    style={{ width: "100px", height: "100px", margin: "5px", objectFit: "cover" }}
+                                />
+                            }
+                        </div>
+                    </div>
                     <button onClick={handleSubmitFripperie} className='w-full h-10 bg-black rounded-lg text-white font-Montserrat font-bold mt-6'>
                         Ajouter
                     </button>
