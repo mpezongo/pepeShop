@@ -27,11 +27,11 @@ export default function Inventory() {
         price: 0,
         category: ''
     })
-
     const [image, setImage] = useState(null)
     const [editImage, setEditImage] = useState(null)
 
     const [data, setData] = useState()
+    const [ballot, setBallot] = useState()
 
     const handleAddItemClick = (value) => {
         setShowAddItem(value)
@@ -92,7 +92,7 @@ export default function Inventory() {
             const { error } = await supabase
                 .from('articles')
                 .insert([
-                    { name, quantity, price, category, img:urlData.publicUrl }
+                    { name, quantity, price, category, img:urlData.publicUrl, type: "pretAporter" }
                 ])
             if (error) {
                 console.log(error)
@@ -121,9 +121,9 @@ export default function Inventory() {
         }
         try{
             const { error } = await supabase
-                .from('ballot')
+                .from('articles')
                 .insert([
-                    { name, quantity, price, category }
+                    { name, quantity, price, category, type: "ballot" }
                 ])
             if (error) {
                 console.log(error)
@@ -152,6 +152,20 @@ export default function Inventory() {
                 console.log(error)
             } else {
                 setData(data)
+            }
+        }
+        fetchData()
+    }, [])
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const { data, error } = await supabase
+                .from('ballot')
+                .select('*')
+            if (error) {
+                console.log(error)
+            } else {
+                setBallot(data)
             }
         }
         fetchData()
@@ -223,7 +237,7 @@ export default function Inventory() {
         }
     }
 
-    console.log(data)
+    console.log(ballot)
   return (
     <div className='flex w-full justify-center '>
         <div className='w-full max-w-[600px] h-screen'>
@@ -244,6 +258,7 @@ export default function Inventory() {
                             <div className='flex flex-col justify-center items-start w-1/2 h-full'>
                                 <span className='font-Montserrat text-sm font-bold'>{item.name}</span>
                                 <span className='font-Montserrat text-xs '>{item.category}</span>
+                                <span className='font-Montserrat text-xs italic font-bold'>{item.type}</span>
                             </div>
                             <div className='flex flex-col justify-center items-end 1/4 h-full gap-2'>
                                 <span className='font-Montserrat text-sm font-bold text-green-500'>{item.price} Fcfa</span>

@@ -89,6 +89,7 @@ export default function Order() {
   const [switchAddOrder, setSwitchAddOrder] = useState(false)
   const [orderArticles, setOrderArticles] = useState({ items: [] })
   const [articlesData, setArticlesData] = useState()
+  const [ballotData, setBallotData] = useState()
   const [addOrderArticle, setAddOrderArticle] = useState()
 
   // const handleEditOrderClick = (item) => {
@@ -157,6 +158,19 @@ export default function Order() {
                   console.log(error)
               } else {
                 setArticlesData(data)
+              }
+          }
+          fetchData()
+  }, [])
+  useEffect(() => {
+          const fetchData = async () => {
+              const { data, error } = await supabase
+                  .from('ballot')
+                  .select('*')
+              if (error) {
+                  console.log(error)
+              } else {
+                setBallotData(data)
               }
           }
           fetchData()
@@ -350,6 +364,7 @@ export default function Order() {
                             <div onClick={handleSwitchAddOrder} className='bg-green-500 text-sm tex-white p-2 rounded-md text-white'>Nouveau client</div>
                           </div>
                             <select name="client" id="" className='w-full h-10 bg-gray-100 rounded-lg px-2 text-sm outline-none' onChange={(e) => setAddOrder({ ...addOrder, client: e.target.value })}>
+                              <option value="">Selectionner un client</option>
                               {
                                 clientData && clientData.map((item, index) => (
                                   <option key={index} value={item.id}>{item.name}</option>
@@ -362,12 +377,21 @@ export default function Order() {
                   }
                   <div className='w-full flex justify-center items-center gap-4 mt-4 flex-col border p-2 rounded-lg'>
                       <label htmlFor="articles" className='w-full flex flex-col justify-start items-start gap-2'>
+                        {/* A continuer iciiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii */}
+                        <div className='flex justify-between items-center w-full'>
                           <span className='font-Montserrat text-sm'>Articles</span>
+                          <button className='p-2 flex bg-green-500 text-xs text-white rounded-lg'>Fripperie</button>
+                        </div>
                           <select name="id" id="" className='w-full h-10 bg-gray-100 rounded-lg px-2 text-sm outline-none'
                             onChange={(event) => setAddOrderArticle({ ...addOrderArticle, id: event.target.value })}>
                             <option value="">Selectionner un article</option>
                             {
                               articlesData && articlesData.map((item, index) => (
+                                <option key={index} value={item.id}>{item.name}</option>
+                              ))
+                            }
+                            {
+                              ballotData && ballotData.map((item, index) => (
                                 <option key={index} value={item.id}>{item.name}</option>
                               ))
                             }
@@ -495,14 +519,14 @@ export default function Order() {
                                 <img src={showDetailOrder.articles.img} alt="" className='w-10 h-10 rounded-lg' />
                                 <span className='text-sm font-bold'>{showDetailOrder.articles.name}</span>
                             </div>
-                            <span className='text-sm font-bold'>{showDetailOrder.articles.price.toLocaleString()} Fcfa</span>
+                            <span className='text-sm font-bold'>{showDetailOrder.priceUnit.toLocaleString()} Fcfa</span>
                         </div>
                         <span className='text-xs'>Quantité : {showDetailOrder.quantity}</span>
 
                       </div>
                       <div className='w-full flex justify-between items-center p-4'>
                           <span className='text-xl font-bold'>Total</span>
-                          <span className='text-sm font-bold'>{(showDetailOrder.articles.price * showDetailOrder.quantity).toLocaleString()} Fcfa</span>
+                          <span className='text-sm font-bold'>{(showDetailOrder.priceUnit * showDetailOrder.quantity).toLocaleString()} Fcfa</span>
                       </div>
                     </div>
                   </div>
