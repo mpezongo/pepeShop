@@ -3,7 +3,7 @@ import Footer from '../component/Footer'
 import Header from '../component/Header'
 import icons from '../constant/icons'
 import { NavLink } from 'react-router-dom'
-
+import Loader from '../component/Loader'
 import { createClient } from '@supabase/supabase-js';
 
 // Initialisation du client Supabase
@@ -90,6 +90,7 @@ export default function Order() {
   const [orderArticles, setOrderArticles] = useState({ items: [] })
   const [articlesData, setArticlesData] = useState()
   const [addOrderArticle, setAddOrderArticle] = useState()
+  const [loading, setLoading] = useState(false)
 
   // const handleEditOrderClick = (item) => {
   //   setEditOrder(item);
@@ -190,6 +191,7 @@ export default function Order() {
 
   const handleSubmitAddOrder = async (e) => {
     e.preventDefault()
+    setLoading(true)
     try{
       let clientId
       if (switchAddOrder){
@@ -269,7 +271,6 @@ export default function Order() {
     }
   }
 
-  console.log(data)
   return (
     <div className='flex w-full justify-center '>
         <div className='w-full max-w-[600px] h-screen'>
@@ -425,9 +426,12 @@ export default function Order() {
                         <option value="Annulé">Annulé</option>
                       </select>
                   </label>
-                  <button onClick={handleSubmitAddOrder} className='w-full h-10 bg-black rounded-lg text-white font-Montserrat font-bold mt-6'>
-                      Creer la commande
-                  </button>
+                  {
+                    loading ? <Loader /> :
+                    <button onClick={handleSubmitAddOrder} className='w-full h-10 bg-black rounded-lg text-white font-Montserrat font-bold mt-6'>
+                        Creer la commande
+                    </button>
+                  }
                 </div>
             </div>
         </div>

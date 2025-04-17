@@ -4,7 +4,7 @@ import Header from '../component/Header'
 import icons from '../constant/icons'
 import { NavLink } from 'react-router-dom'
 import { createClient } from '@supabase/supabase-js';
-
+import Loader from '../component/Loader'
 // Initialisation du client Supabase
 const supabase = createClient(
   "https://alnyevekfotvgurlshew.supabase.co",
@@ -15,6 +15,7 @@ export default function Depenses() {
 
   const [showAddItem, setShowAddItem] = useState(false)
   const [showEditItem, setShowEditItem] = useState(false)
+  const [loading, setLoading] = useState(false)
   const [editItem, setEditItem] = useState({
       description: '',
       date: new Date().toLocaleDateString(),
@@ -67,6 +68,7 @@ export default function Depenses() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setLoading(true)
     const { name, date, price } = dataItem
     if (!name || !date || !price) {
         alert('Veuillez remplir tous les champs')
@@ -92,6 +94,7 @@ export default function Depenses() {
   }
   const handleEditSubmit = async (e) => {
     e.preventDefault()
+    setLoading(true)
     const { description, date, montant } = editItem
     if (!description || !date || !montant) {
         alert('Veuillez remplir tous les champs')
@@ -192,9 +195,12 @@ export default function Depenses() {
                         <span className='font-Montserrat text-sm'>Date</span>
                         <input type="date" value={dataItem.date} onChange={handleChangeDataItem} name='date' className='w-full h-10 bg-gray-100 rounded-lg px-2 text-sm outline-none' />
                     </label>
-                    <button onClick={handleSubmit} className='w-full h-10 bg-black rounded-lg text-white font-Montserrat font-bold mt-6'>
-                        Ajouter
-                    </button>
+                    {
+                        loading ? <Loader /> :
+                        <button onClick={handleSubmit} className='w-full h-10 bg-black rounded-lg text-white font-Montserrat font-bold mt-6'>
+                            Ajouter
+                        </button>
+                    }
                 </form>
             </div>
         </div>
@@ -219,9 +225,12 @@ export default function Depenses() {
                         <span className='font-Montserrat text-sm'>Date</span>
                         <input type="date" value={editItem.date} onChange={handleChangeEditItem} name='date' className='w-full h-10 bg-gray-100 rounded-lg px-2 text-sm outline-none' />
                     </label>
-                    <button onClick={handleEditSubmit} className='w-full h-10 bg-black rounded-lg text-white font-Montserrat font-bold mt-6'>
-                        Ajouter
-                    </button>
+                    {
+                        loading ? <Loader /> :
+                        <button onClick={handleEditSubmit} className='w-full h-10 bg-black rounded-lg text-white font-Montserrat font-bold mt-6'>
+                            Modifier
+                        </button>
+                    }
                 </form>
             </div>
         </div>

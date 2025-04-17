@@ -4,6 +4,7 @@ import Header from '../component/Header'
 import icons from '../constant/icons'
 import { NavLink } from 'react-router-dom'
 import { createClient } from '@supabase/supabase-js';
+import Loader from '../component/Loader'
 
 // Initialisation du client Supabase
 const supabase = createClient(
@@ -21,6 +22,7 @@ export default function Inventory() {
         price: 0,
         category: ''
     })
+    const [loading, setLoading] = useState(false)
     const [dataItemBallot, setDataItemBallot] = useState({
         name: '',
         quantity: 0,
@@ -68,6 +70,7 @@ export default function Inventory() {
 
     const handleSubmit = async (e) => {
         e.preventDefault()
+        setLoading(true)
         const { name, quantity, price, category } = dataItem
         if (!name || !quantity || !price || !category) {
             alert('Veuillez remplir tous les champs')
@@ -114,6 +117,7 @@ export default function Inventory() {
     }
     const handleSubmitFripperie = async (e) => {
         e.preventDefault()
+        setLoading(true)
         const { name, quantity, price, category } = dataItemBallot
         if (!name || !quantity || !price || !category) {
             alert('Veuillez remplir tous les champs')
@@ -350,9 +354,12 @@ export default function Inventory() {
                             }
                         </div>
                     </div>
-                    <button onClick={handleSubmit} className='w-full h-10 bg-black rounded-lg text-white font-Montserrat font-bold mt-6'>
-                        Ajouter
-                    </button>
+                    {
+                        loading ? <Loader /> :
+                        <button onClick={handleSubmit} className='w-full h-10 bg-black rounded-lg text-white font-Montserrat font-bold mt-6'>
+                            Ajouter
+                        </button>
+                    }
                 </form>
             </div>
         </div>
@@ -403,9 +410,12 @@ export default function Inventory() {
                             }
                         </div>
                     </div>
-                    <button onClick={handleSubmitFripperie} className='w-full h-10 bg-black rounded-lg text-white font-Montserrat font-bold mt-6'>
-                        Ajouter
-                    </button>
+                    {
+                        loading ? <Loader /> :
+                        <button onClick={handleSubmitFripperie} className='w-full h-10 bg-black rounded-lg text-white font-Montserrat font-bold mt-6'>
+                            Ajouter
+                        </button>
+                    }
                 </form>
             </div>
         </div>
